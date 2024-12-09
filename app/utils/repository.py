@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from fastapi import HTTPException
 from sqlalchemy import insert, select
 
 from app.db.session import async_session_maker
@@ -47,11 +48,11 @@ class SQLAlchemyRepository(AbstractRepository):
         async with async_session_maker() as session:
             query = select(self.model).where(self.model.id == id)
             result = await session.execute(query)
-            result = result.first()
+            result = result.scalar_one_or_none()
             if result:
-                return result.first()
+                return result
             else:
-                raise ValueError(f"No {self.model.__name__} found with id {id}")
+                raise HTTPException(status_code=404, detail=f"No {self.model.__name__} found with id {id}")
 
     async def update_one(self, id: int, data: dict):
         async with async_session_maker() as session:

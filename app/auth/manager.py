@@ -1,15 +1,10 @@
-import contextlib
 from typing import Optional
 
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin, FastAPIUsers
-from fastapi_users.exceptions import UserAlreadyExists
-from fastapi_users.password import PasswordHelper
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.auth import auth_backend
-from app.auth.schemas import UserCreate
-from app.db.session import get_user_db, get_async_session, get_db
+from app.db.session import get_user_db
 from app.db.models import User
 from app.core.config import settings
 
