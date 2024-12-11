@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import Optional, List
 
 from fastapi_users import schemas
 from pydantic import field_validator, BaseModel
 
 from app.db.models import UserRole
+from app.db.schemas.pagination import PaginationSchema
 
 
 class UserRead(schemas.BaseUser[int]):
@@ -12,6 +13,10 @@ class UserRead(schemas.BaseUser[int]):
 
     class Config:
         from_attributes = True
+
+
+class PaginatedUserList(PaginationSchema):
+    items: list[UserRead]
 
 
 class UserCreate(schemas.BaseUserCreate):

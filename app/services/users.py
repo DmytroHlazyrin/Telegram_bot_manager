@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 
 from app.db.models import User, UserRole
+from app.utils.pagination import PaginationParams
 from app.utils.repository import AbstractRepository
 from fastapi import HTTPException
 
@@ -12,13 +13,13 @@ class UsersService:
     def __init__(self, users_repo: AbstractRepository):
         self.users_repo = users_repo()
 
-    async def get_users(self, current_user: User):
+    async def get_users(self, current_user: User, pagination: PaginationParams):
         """Only admin users should be able to see all users.
         Managers should have access to their subordinates."""
         if current_user.role == UserRole.ADMIN:
-            return await self.users_repo.get_all()
+            return await self.users_repo.get_all(pagination)
         elif current_user.role == UserRole.MANAGER:
-            return await self.users_repo.get_subordinates(current_user.id)
+            return await self.users_repo.get_subordinates(current_user.id, pagination)
         else:
             raise HTTPException(status_code=403, detail="Only admin and managers can access this resource.")
 
@@ -27,7 +28,7 @@ class UsersService:
         if (current_user.role == UserRole.ADMIN
             or
             (current_user.role == UserRole.MANAGER and
-             result["manager_id"] == current_user.id)
+             result.manager_id == current_user.id)
             or
                 current_user.id == user_id):
             return result

@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 
 from fastapi import HTTPException
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, func
 
 from app.db.session import async_session_maker
+from app.utils.pagination import PaginationParams
 
 
 class AbstractRepository(ABC):
@@ -12,7 +13,7 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_all(self):
+    async def get_all(self, pagination):
         raise NotImplementedError
 
     @abstractmethod
@@ -38,11 +39,24 @@ class SQLAlchemyRepository(AbstractRepository):
             await session.commit()
             return result.scalar_one()
 
-    async def get_all(self):
+    async def get_all(self, pagination: PaginationParams = None):
         async with async_session_maker() as session:
             query = select(self.model)
+            query = pagination.apply(query, self.model)
+
+            total_query = select(func.count()).select_from(self.model)
+            total = (await session.execute(total_query)).scalar()
+
             result = await session.execute(query)
-            return result.scalars().all()
+            items = result.scalars().all()
+
+            return {
+                "items": items,
+                "total": total,
+                "page": pagination.page,
+                "page_size": pagination.page_size,
+                "pages": (total + pagination.page_size - 1) // pagination.page_size,
+            }
 
     async def get_one(self, id: int) -> dict:
         async with async_session_maker() as session:
