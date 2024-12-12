@@ -1,8 +1,8 @@
 """Initial migrations
 
-Revision ID: bd79683ebb57
+Revision ID: f3a5463204c2
 Revises: 
-Create Date: 2024-12-08 16:33:49.212686
+Create Date: 2024-12-12 20:25:06.035985
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'bd79683ebb57'
+revision: str = 'f3a5463204c2'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -36,13 +36,13 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_table('requests',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('bottoken', sa.String(), nullable=False),
-    sa.Column('chatid', sa.String(), nullable=False),
+    sa.Column('bot_token', sa.String(), nullable=False),
+    sa.Column('chat_id', sa.Integer(), nullable=False),
     sa.Column('message', sa.Text(), nullable=False),
-    sa.Column('telegram_response', sa.Text(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('telegram_response', sa.JSON(), nullable=True),
+    sa.Column('author_id', sa.Integer(), nullable=False),
     sa.Column('timestamp', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_requests_id'), 'requests', ['id'], unique=False)

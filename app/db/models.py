@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import String, Boolean, ForeignKey, Text, DateTime, Enum, func
+from sqlalchemy import String, Boolean, ForeignKey, Text, DateTime, Enum, func, \
+    JSON, Integer
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 import enum
 
@@ -39,8 +40,10 @@ class Request(Base):
     __tablename__ = "requests"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    bot_token: Mapped[str] = mapped_column(String, nullable=False)
+    chat_id: Mapped[int] = mapped_column(Integer, nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
-    telegram_response: Mapped[str | None] = mapped_column(Text, nullable=True)
+    telegram_response: Mapped[JSON] = mapped_column(JSON, nullable=True)
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     timestamp: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
