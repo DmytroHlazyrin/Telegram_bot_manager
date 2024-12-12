@@ -12,10 +12,6 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # Telegram API
-    TELEGRAM_BOT_TOKEN: str
-    TELEGRAM_API_URL: str = "https://api.telegram.org"
-
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
