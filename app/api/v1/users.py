@@ -21,7 +21,6 @@ async def get_users_endpoint(
     return await UsersService(UsersRepository).get_users(current_user, pagination)
 
 
-
 @router.get("/users/{user_id}", response_model=UserRead)
 async def get_user_by_id_endpoint(
         user_id: int,
@@ -29,6 +28,14 @@ async def get_user_by_id_endpoint(
 ) -> UserRead:
     """Retrieve a specific user by ID."""
     return await UsersService(UsersRepository).get_user_by_id(current_user, user_id)
+
+
+@router.get("/users/me/", response_model=UserRead)
+async def get_current_user_endpoint(
+        current_user: User = Depends(current_user)
+) -> UserRead:
+    """Retrieve the current user."""
+    return await UsersService(UsersRepository).get_user_by_id(current_user, current_user.id)
 
 
 @router.put("/users/{user_id}/role", response_model=UserRead)

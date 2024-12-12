@@ -22,24 +22,25 @@ class TelegramBotService:
             background_tasks: BackgroundTasks
     ):
         log_data = {
+            "bot_token": token,
+            "chat_id": chat_id,
             "message": text,
             "author_id": author_id,
             "timestamp": datetime.now(),
         }
 
         try:
-            resp = await self.bot(token=token).send_message(chat_id=chat_id, text=text)
-            print(resp)
-            log_data["telegram_response"] = "Message was sent successfully"
+            response = await self.bot(token=token).send_message(chat_id=chat_id, text=text)
+            log_data["telegram_response"] = response.to_dict()
+
         except InvalidToken:
-            log_data["telegram_response"] = "Error: Token is Invalid"
             raise HTTPException(status_code=401, detail=f"Failed to send message to Telegram. Error: Invalid token")
+
         except TelegramError as e:
-            log_data["telegram_response"] = f"Error: {e}"
             raise HTTPException(status_code=404, detail=f"Failed to send message to Telegram. Error: {e}")
 
         # Write to logs asynchronously to avoid blocking the request
-        background_tasks.add_task(self.requests_repo.add_one, log_data)
+        finally:
+            background_tasks.add_task(self.requests_repo.add_one, log_data)
 
-        return log_data
-
+        return {"telegram_response": log_data["telegram_response"]}

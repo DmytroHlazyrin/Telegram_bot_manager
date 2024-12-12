@@ -15,7 +15,7 @@ from app.utils.pagination import PaginationParams
 router = APIRouter()
 
 @router.post("/requests", response_model=RequestCreateResponse, status_code=201)
-async def send_massage_endpoint(
+async def send_request_endpoint(
         request_data: RequestCreate,
         background_task: BackgroundTasks,
         author: User = Depends(current_user),
@@ -32,11 +32,18 @@ async def send_massage_endpoint(
 
 
 @router.get("/requests", response_model=PaginatedRequestList)
-async def get_messages_endpoint(
+async def get_request_endpoint(
         current_user: User = Depends(current_user),
         pagination: PaginationParams = Depends()
 ):
     """Retrieve a list of messages."""
     return await RequestsService(RequestsRepository).get_requests(current_user, pagination)
 
-
+@router.get("/users/{user_id}/requests", response_model=PaginatedRequestList)
+async def get_user_requests_endpoint(
+        user_id: int,
+        current_user: User = Depends(current_user),
+        pagination: PaginationParams = Depends()
+):
+    """Retrieve a list of messages for a specific user."""
+    return await RequestsService(RequestsRepository).get_user_requests(current_user, user_id, pagination)

@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel
+from telegram import Message
 
 from app.db.schemas.pagination import PaginationSchema
 
@@ -14,19 +15,18 @@ class RequestCreate(RequestBase):
     chatid: int
 
 
-class RequestCreateResponse(RequestBase):
-    """ Formatted response for requests before saving to the database """
-    author_id: int
-    timestamp: datetime = datetime.now()
-    telegram_response: str | None = None
+class RequestCreateResponse(BaseModel):
+    telegram_response: dict
 
     class Config:
-        from_attribute = True
-
+        arbitrary_types_allowed = True
 
 class RequestRead(RequestCreateResponse):
     id: int
-
+    author_id: int
+    timestamp: datetime = datetime.now()
+    bot_token: str
+    chat_id: int
 
 class PaginatedRequestList(PaginationSchema):
     items: list[RequestRead]

@@ -34,7 +34,7 @@ class RequestsRepository(SQLAlchemyRepository):
                 "pages": (total + pagination.page_size - 1) // pagination.page_size,
             }
 
-    async def get_users_requests(self, user_id: int, pagination) -> dict:
+    async def get_user_requests(self, user_id: int, pagination) -> dict:
         """
         Fetches all requests made by a specific user.
         """

@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 
 from fastapi_users import schemas
 from pydantic import field_validator, BaseModel
