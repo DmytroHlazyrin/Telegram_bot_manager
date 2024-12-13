@@ -31,5 +31,7 @@ async def get_db() -> AsyncSession:
         await db.close()
 
 
-async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+async def get_user_db(
+        session: AsyncSession = Depends(get_async_session)
+) -> AsyncSession:
     yield SQLAlchemyUserDatabase(session, User)

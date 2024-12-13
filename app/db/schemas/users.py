@@ -28,7 +28,7 @@ class UserRoleUpdate(BaseModel):
 
     @field_validator("role", mode="before")
     @classmethod
-    def validate_role(cls, value):
+    def validate_role(cls, value: str) -> str:
         if isinstance(value, str):
             value = value.upper()
         if value not in UserRole:

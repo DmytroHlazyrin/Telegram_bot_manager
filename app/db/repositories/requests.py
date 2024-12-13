@@ -1,15 +1,17 @@
-from fastapi import HTTPException
 from sqlalchemy import select, func
 
 from app.db.session import async_session_maker
+from app.utils.pagination import PaginationParams
 from app.utils.repository import SQLAlchemyRepository
-from app.db.models import Request, UserRole, User
+from app.db.models import Request, User
 
 
 class RequestsRepository(SQLAlchemyRepository):
     model = Request
 
-    async def get_subordinates_requests(self, manager_id: int, pagination) -> dict:
+    async def get_subordinates_requests(
+            self, manager_id: int, pagination: PaginationParams
+    ) -> dict:
         """
         Fetches all requests made by subordinates of a specific manager.
         """
@@ -19,7 +21,8 @@ class RequestsRepository(SQLAlchemyRepository):
             )
             query = pagination.apply(query, self.model)
 
-            total_query = select(func.count()).select_from(self.model).join(User).where(
+            total_query = select(func.count()
+                                 ).select_from(self.model).join(User).where(
                 User.manager_id == manager_id)
             total = (await session.execute(total_query)).scalar()
 
@@ -31,10 +34,13 @@ class RequestsRepository(SQLAlchemyRepository):
                 "total": total,
                 "page": pagination.page,
                 "page_size": pagination.page_size,
-                "pages": (total + pagination.page_size - 1) // pagination.page_size,
+                "pages": ((total + pagination.page_size - 1)
+                          // pagination.page_size),
             }
 
-    async def get_user_requests(self, user_id: int, pagination) -> dict:
+    async def get_user_requests(
+            self, user_id: int, pagination: PaginationParams
+    ) -> dict:
         """
         Fetches all requests made by a specific user.
         """
@@ -55,6 +61,7 @@ class RequestsRepository(SQLAlchemyRepository):
                 "total": total,
                 "page": pagination.page,
                 "page_size": pagination.page_size,
-                "pages": (total + pagination.page_size - 1) // pagination.page_size,
+                "pages": ((total + pagination.page_size - 1)
+                          // pagination.page_size),
             }
 

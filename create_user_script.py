@@ -10,7 +10,9 @@ async def main():
     is_superuser = True
     role = UserRole.ADMIN
 
-    user = await create_user(email=email, password=password, is_superuser=is_superuser, role=role)
+    user = await create_user(
+        email=email, password=password, is_superuser=is_superuser, role=role
+    )
     print(f"User created: {user.email}")
 
 if __name__ == "__main__":

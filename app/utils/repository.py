@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy import insert, select, func
@@ -13,7 +14,7 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_all(self, pagination):
+    async def get_all(self, pagination: PaginationParams):
         raise NotImplementedError
 
     @abstractmethod
@@ -32,7 +33,7 @@ class AbstractRepository(ABC):
 class SQLAlchemyRepository(AbstractRepository):
     model = None
 
-    async def add_one(self, data: dict) -> int:
+    async def add_one(self, data: dict):
         async with async_session_maker() as session:
             query = insert(self.model).values(**data).returning(self.model.id)
             result = await session.execute(query)
@@ -55,10 +56,11 @@ class SQLAlchemyRepository(AbstractRepository):
                 "total": total,
                 "page": pagination.page,
                 "page_size": pagination.page_size,
-                "pages": (total + pagination.page_size - 1) // pagination.page_size,
+                "pages": ((total + pagination.page_size - 1)
+                          // pagination.page_size),
             }
 
-    async def get_one(self, id: int) -> dict:
+    async def get_one(self, id: int):
         async with async_session_maker() as session:
             query = select(self.model).where(self.model.id == id)
             result = await session.execute(query)
@@ -66,11 +68,14 @@ class SQLAlchemyRepository(AbstractRepository):
             if result:
                 return result
             else:
-                raise HTTPException(status_code=404, detail=f"No {self.model.__name__} found with id {id}")
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"No {self.model.__name__} found with id {id}")
 
     async def update_one(self, id: int, data: dict):
         async with async_session_maker() as session:
-            query = self.model.__table__.update().where(self.model.id == id).values(**data)
+            query = self.model.__table__.update().where(
+                self.model.id == id).values(**data)
             await session.execute(query)
             await session.commit()
             return await self.get_one(id)
